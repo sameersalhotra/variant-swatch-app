@@ -1,67 +1,96 @@
-import React, { useState, useEffect } from 'react';
+// File: components/ImageSelector.js
 
-const ImageSelector = ({ product }) => {
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const ImageSelector = ({ productId, variants, onAssign }) => {
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [variantImages, setVariantImages] = useState([]);
+  const [images, setImages] = useState([]);
+  const [assignedImages, setAssignedImages] = useState({});
 
   useEffect(() => {
-    if (!product) return;
+    if (productId) {
+      axios.get(`/api/images?productId=${productId}`)
+        .then((res) => {
+          setImages(res.data.images);
+        });
 
-    const variantMap = {};
+      axios.get(`/api/assigned-images?productId=${productId}`)
+        .then((res) => {
+          setAssignedImages(res.data.assigned || {});
+        });
+    }
+  }, [productId]);
 
-    product.images.forEach((img) => {
-      const alt = img.alt || '';
-      const match = alt.match(/color:\s*(\w+)/i);
-      if (match) {
-        const color = match[1].toLowerCase();
-        if (!variantMap[color]) variantMap[color] = [];
-        variantMap[color].push(img.src);
-      }
+  const handleAssign = (variantId, selectedImages) => {
+    axios.post('/api/assign-images', {
+      productId,
+      variantId,
+      images: selectedImages
+    }).then((res) => {
+      setAssignedImages((prev) => ({
+        ...prev,
+        [variantId]: selectedImages
+      }));
+      if (onAssign) onAssign(variantId, selectedImages);
     });
+  };
 
-    setVariantImages(variantMap);
-
-    // Set default variant to first option
-    const defaultColor = product.options[0]?.values[0]?.toLowerCase();
-    setSelectedVariant(defaultColor);
-  }, [product]);
-
-  const handleVariantChange = (color) => {
-    setSelectedVariant(color.toLowerCase());
+  const renderImages = () => {
+    const alreadyAssigned = Object.values(assignedImages).flat();
+    return images.filter((img) => !alreadyAssigned.includes(img.src)).map((img) => (
+      <label key={img.src} style={{ marginRight: '10px' }}>
+        <input
+          type="checkbox"
+          value={img.src}
+          onChange={(e) => {
+            const selected = new Set(assignedImages[selectedVariant?.id] || []);
+            if (e.target.checked) {
+              selected.add(e.target.value);
+            } else {
+              selected.delete(e.target.value);
+            }
+            setAssignedImages((prev) => ({
+              ...prev,
+              [selectedVariant.id]: Array.from(selected)
+            }));
+          }}
+          checked={(assignedImages[selectedVariant?.id] || []).includes(img.src)}
+        />
+        <img src={img.src} alt="variant" width="60" height="60" />
+      </label>
+    ));
   };
 
   return (
     <div>
-      <h3>Select Variant:</h3>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        {Object.keys(variantImages).map((color) => (
-          <button
-            key={color}
-            onClick={() => handleVariantChange(color)}
-            style={{
-              padding: '8px 12px',
-              border: selectedVariant === color ? '2px solid black' : '1px solid gray',
-              background: 'white',
-              cursor: 'pointer',
-            }}
-          >
-            {color}
-          </button>
+      <h2>Select Variant</h2>
+      <select
+        onChange={(e) => {
+          const variant = variants.find(v => v.id === e.target.value);
+          setSelectedVariant(variant);
+        }}
+      >
+        <option value="">-- Select Variant --</option>
+        {variants.map((v) => (
+          <option key={v.id} value={v.id}>{v.option1 || v.title}</option>
         ))}
-      </div>
+      </select>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
-        {variantImages[selectedVariant]?.map((src, index) => (
-          <img
-            key={index}
-            src={src}
-            alt={`${selectedVariant} image ${index + 1}`}
-            width="150"
-            height="150"
-            style={{ objectFit: 'cover', borderRadius: '8px' }}
-          />
-        ))}
-      </div>
+      {selectedVariant && (
+        <div>
+          <h3>Assign Images to: {selectedVariant.option1 || selectedVariant.title}</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            {renderImages()}
+          </div>
+          <button
+            onClick={() => handleAssign(selectedVariant.id, assignedImages[selectedVariant.id] || [])}
+            style={{ marginTop: '10px' }}
+          >
+            Save Assignment
+          </button>
+        </div>
+      )}
     </div>
   );
 };
