@@ -1,28 +1,18 @@
 import React from 'react';
+import Head from 'next/head';
 import ImageSelector from '../components/ImageSelector';
 
-const mockProduct = {
-  options: [
-    {
-      name: 'Color',
-      values: ['Red', 'Blue', 'Green']
-    }
-  ],
-  images: [
-    { src: 'https://via.placeholder.com/150/FF0000', alt: 'color: red' },
-    { src: 'https://via.placeholder.com/150/FF6666', alt: 'color: red' },
-    { src: 'https://via.placeholder.com/150/0000FF', alt: 'color: blue' },
-    { src: 'https://via.placeholder.com/150/6666FF', alt: 'color: blue' },
-    { src: 'https://via.placeholder.com/150/00FF00', alt: 'color: green' },
-    { src: 'https://via.placeholder.com/150/66FF66', alt: 'color: green' },
-  ]
-};
-
-export default function HomePage() {
+export default function Home() {
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Variant Swatch Test</h1>
-      <ImageSelector product={mockProduct} />
-    </div>
+    <>
+      <Head>
+        <title>Trendlok Variant Swatch Admin</title>
+      </Head>
+      <main style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+        <h1>🖼️ Trendlok Variant Image Assigner</h1>
+        <p>Select a product and assign images to each color or size variant.</p>
+        <ImageSelector />
+      </main>
+    </>
   );
 }
