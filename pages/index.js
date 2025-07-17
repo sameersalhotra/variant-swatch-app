@@ -1,25 +1,28 @@
-import ImageSelector from "../components/ImageSelector";
+import React from 'react';
+import ImageSelector from '../components/ImageSelector';
 
-export default function Home() {
-  // 🧪 Test product (replace with real Shopify data later)
-  const product = {
-    options: [
-      { name: "Color", values: ["Red", "Blue", "Green"] }
-    ],
-    images: [
-      { src: "https://via.placeholder.com/300x300/FF0000/FFFFFF?text=Red+1", alt: "color: Red" },
-      { src: "https://via.placeholder.com/300x300/FF0000/FFFFFF?text=Red+2", alt: "color: Red" },
-      { src: "https://via.placeholder.com/300x300/0000FF/FFFFFF?text=Blue+1", alt: "color: Blue" },
-      { src: "https://via.placeholder.com/300x300/0000FF/FFFFFF?text=Blue+2", alt: "color: Blue" },
-      { src: "https://via.placeholder.com/300x300/00FF00/FFFFFF?text=Green+1", alt: "color: Green" }
-    ]
-  };
+const mockProduct = {
+  options: [
+    {
+      name: 'Color',
+      values: ['Red', 'Blue', 'Green']
+    }
+  ],
+  images: [
+    { src: 'https://via.placeholder.com/150/FF0000', alt: 'color: red' },
+    { src: 'https://via.placeholder.com/150/FF6666', alt: 'color: red' },
+    { src: 'https://via.placeholder.com/150/0000FF', alt: 'color: blue' },
+    { src: 'https://via.placeholder.com/150/6666FF', alt: 'color: blue' },
+    { src: 'https://via.placeholder.com/150/00FF00', alt: 'color: green' },
+    { src: 'https://via.placeholder.com/150/66FF66', alt: 'color: green' },
+  ]
+};
 
+export default function HomePage() {
   return (
-    <main style={{ padding: "40px" }}>
-      <h1>🧪 Trendlok Variant Swatch App (Preview)</h1>
-      <p>This is a test preview using static product data.</p>
-      <ImageSelector product={product} />
-    </main>
+    <div style={{ padding: '20px' }}>
+      <h1>Variant Swatch Test</h1>
+      <ImageSelector product={mockProduct} />
+    </div>
   );
 }
